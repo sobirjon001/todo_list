@@ -5,7 +5,7 @@ const todoList = document.querySelector(".todo-list");
 const filterOption = document.querySelector(".filter-todo");
 
 // Event Listeners
-document.addEventListener("DOMContentLoaded", getrecords);
+document.addEventListener("DOMContentLoaded", getTodos);
 todoButton.addEventListener("click", addTodo);
 todoList.addEventListener("click", deletCheck);
 filterOption.addEventListener("click", filterTodo);
@@ -13,8 +13,8 @@ filterOption.addEventListener("click", filterTodo);
 
 // Functions
 
-// Create todos from local storage saved records
-function getrecords() {
+// Update records
+function getRecords() {
     // Check If records storage exist
     let records;
     if (localStorage.getItem("records") === null) {
@@ -22,6 +22,13 @@ function getrecords() {
     } else {
         records = JSON.parse(localStorage.getItem("records"));
     }
+    return records;
+}
+
+// Create todos from local storage saved records
+function getTodos() {
+    // Get records
+    let records = getRecords();
     records.forEach(function(record) {
         // Todo DIV
         const todoDiv = document.createElement("div");
@@ -53,16 +60,16 @@ function getrecords() {
 function addTodo(event) {
     // Prevent from submitting
     event.preventDefault();
-    // Check If records storage exist
-    let records;
-    if (localStorage.getItem("records") === null) {
-        records = [];
-    } else {
-        records = JSON.parse(localStorage.getItem("records"));
-    }
+    // Get records
+    let records = getRecords();
     // Check if this entry exist
     if (records.find(record => record.text === todoInput.value)) {
-        alert("This Entry already exist, please write different")
+        alert("This Entry already exist, please write different");
+        todoInput.value = "";
+        todoInput.focus();
+    } else if (todoInput.value === "" || todoInput.value != /[^A-Z]/) {
+        alert("Please write your task");
+        todoInput.focus();
     } else {
         // Todo DIV
         const todoDiv = document.createElement("div");
@@ -88,6 +95,7 @@ function addTodo(event) {
         todoList.appendChild(todoDiv);
         // Clear Todo input value
         todoInput.value = "";
+        todoInput.focus();
     }
 }
 
@@ -103,6 +111,7 @@ function deletCheck(e) {
         todobox.addEventListener("transitionend", function() {
             todobox.remove();
         });
+        todoInput.focus();
     }
     // Check mark
     if (item.classList[0] === "complete-btn") {
@@ -110,6 +119,7 @@ function deletCheck(e) {
         const todoIndex = todobox.children[0].innerText;
         todobox.classList.toggle("completed");
         saveCheck(todobox, todoIndex);
+        todoInput.focus();
     }
 }
 
@@ -136,41 +146,32 @@ function filterTodo(e) {
                 break;
         }
     });
+    todoList.addEventListener("transitioned", function() {
+        todoInput.focus();
+    });
 }
 
 function saveLocalrecords(record) {
-    // Check If records storage exist
-    if (localStorage.getItem("records") === null) {
-        records = [];
-    } else {
-        records = JSON.parse(localStorage.getItem("records"));
-    }
+    // Get records
+    let records = getRecords();
 
     records.push(record);
     localStorage.setItem("records", JSON.stringify(records));
 }
 
 function removeLocalrecords(todoIndex) {
-    // Check If todo storage exist
-    let records;
-    if (localStorage.getItem("records") === null) {
-        records = [];
-    } else {
-        records = JSON.parse(localStorage.getItem("records"));
-    }
+    // Get records
+    let records = getRecords();
+    // Remove record
     const i = records.findIndex(record => record.text === todoIndex);
     records.splice(i, 1);
     localStorage.setItem("records", JSON.stringify(records));
 }
 
 function saveCheck(todobox, todoIndex) {
-    // Check If todo storage exist
-    let records;
-    if (localStorage.getItem("records") === null) {
-        records = [];
-    } else {
-        records = JSON.parse(localStorage.getItem("records"));
-    }
+    // Get records
+    let records = getRecords();
+    // Save record
     if (todobox.classList.contains("completed")) {
         records.find(record => record.text === todoIndex).checked = "compl";
     } else {
