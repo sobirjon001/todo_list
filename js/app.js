@@ -67,7 +67,7 @@ function addTodo(event) {
         alert("This Entry already exist, please write different");
         todoInput.value = "";
         todoInput.focus();
-    } else if (todoInput.value === "" || todoInput.value != /[^A-Z]/) {
+    } else if (!todoInput.value || todoInput.value === " " || todoInput.value === "  ") {
         alert("Please write your task");
         todoInput.focus();
     } else {
